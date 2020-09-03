@@ -25,7 +25,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "users")
-public class User
+public class User extends Auditable
 {
     /**
      * The primary key (long) of the users table.
@@ -70,12 +70,9 @@ public class User
      * Creates a join table joining Users and Roles in a Many-To-Many relations.
      * Contains a List of Role Objects used by this user.
      */
-    @ManyToMany()
-    @JoinTable(name = "userroles",
-            joinColumns = @JoinColumn(name = "userid"),
-            inverseJoinColumns = @JoinColumn(name = "roleid"))
-    @JsonIgnoreProperties(value = "users")
-    private Set<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties(value = "user")
+    private Set<UserRoles> roles = new HashSet<>();
 
     /**
      * Default constructor used primarily by the JPA.
@@ -208,7 +205,7 @@ public class User
      *
      * @return A list of the Role objects assigned to this user
      */
-    public Set<Role> getRoles()
+    public Set<UserRoles> getRoles()
     {
         return roles;
     }
@@ -218,8 +215,10 @@ public class User
      *
      * @param roles Replaces the current list of roles assigned to this user with this one
      */
-    public void setRoles(Set<Role> roles)
+    public void setRoles(Set<UserRoles> roles)
     {
         this.roles = roles;
     }
+
+
 }

@@ -26,6 +26,8 @@ public class RoleServiceImpl
     @Autowired
     RoleRepository rolerepos;
 
+    @Autowired
+    private UserAuditing userAuditing;
     /**
      * Connect this service to the User Model
      */
@@ -86,5 +88,20 @@ public class RoleServiceImpl
     public void deleteAll()
     {
         rolerepos.deleteAll();
+    }
+
+    @Transactional
+
+    @Override
+    public Role update(long id, Role role) {
+        if (role.getName() == null){
+            throw new EntityNotFoundException("No role name found to update");
+        }
+        if(role.getUsers().size() > 0){
+            throw new EntityNotFoundException("User roles are not updated through role");
+        }
+        Role newRole = findRoleById(id);
+        rolerepos.updateRoleName(userAuditing.getCurrentAuditor().get(), id, role.getName());
+        return findRoleById(id);
     }
 }
